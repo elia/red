@@ -893,6 +893,10 @@ class Module
   end
   
   def define_method(sym, &block)
+    `this.prototype['m$'+sym.__value__]=block.__block__.__unbound__`
+    `Red.updateChildren(this)`
+    `Red.updateIncluders(this)`
+    return `block`
   end
   
   # call-seq:
