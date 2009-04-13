@@ -101,8 +101,10 @@ module Red
               if (file.nil?)
                 @@lib_dirs.each { |dir|
                   filename = File.join(dir, dirname, basename)
-                  file = Dir.glob('%s.red' % filename)[0] ||
-                         Dir.glob('%s.rb' % filename)[0]
+                  if (file.nil?)
+                    file = Dir.glob('%s.red' % filename)[0] ||
+                           Dir.glob('%s.rb' % filename)[0]
+                  end
                 }
               end
               
