@@ -5429,7 +5429,17 @@ class String
   #   str.slice(other)       -> string or nil
   # 
   # FIX: Incomplete
-  def []
+  def [](regexp, num = nil)
+    if (num.nil?)
+      exp = regexp.inspect
+      re = `new RegExp(#{exp}.__value__.substr(1, #{exp}.__value__.length-2))`
+      `console.log(#{re}.exec(this.__value__))`
+      result = `#{re}.exec(this.__value__)`
+      if `!result`
+        return nil
+      end
+      return String.new(`result[0]`)
+    end
   end
   
   # call-seq:

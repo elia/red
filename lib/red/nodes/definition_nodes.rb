@@ -85,6 +85,10 @@ module Red
         # [:defn, :foo, [:scope, [:block, [:args, (:my_arg1, :my_arg2, ..., :'*my_args', (:block))], (:block_arg, :my_block), {expression}, {expression}, ...]]
         def initialize(function_name_sexp, scope_sexp, options)
           return if @@red_import && !@@red_methods.include?(function_name_sexp)
+
+          stuff = scope_sexp.assoc(:block).assoc(:vcall)
+          return if stuff[1] == :_priv unless stuff.nil?
+
           function        = (METHOD_ESCAPE[function_name_sexp] || function_name_sexp).red!
           @@red_function  = function
           block_sexp      = scope_sexp.assoc(:block)
@@ -120,6 +124,10 @@ module Red
         # [:defs, {expression}, :foo, [:scope, (:block, [:args, (:my_arg1, :my_arg2, ..., :'*my_args', (:block))], (:block_arg, :my_block), {expression}, {expression}, ...)]
         def initialize(object_sexp, function_name_sexp, scope_sexp, options)
           return if @@red_import && !@@red_methods.include?(function_name_sexp)
+
+          stuff = scope_sexp.assoc(:block).assoc(:vcall)
+          return if stuff[1] == :_priv unless stuff.nil?
+
           function        = (METHOD_ESCAPE[function_name_sexp] || function_name_sexp).red!
           @@red_function  = function
           object          = object_sexp.is_sexp?(:self) ? @@namespace_stack.join(".") : object_sexp.red!

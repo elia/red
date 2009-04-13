@@ -55,12 +55,7 @@ module Red
         # [:call, {expression}, :foo, (:array, {expression}, {expression}, ...)]
         def initialize(receiver_sexp, function_sexp, *arguments_array_sexp)
           options     = arguments_array_sexp.pop
-          if (receiver_sexp[0] == :self)
-            receiver = 'this'
-          else
-            # puts receiver_sexp.inspect
-            receiver    = receiver_sexp.red!(:as_receiver => true)
-          end
+          receiver    = receiver_sexp.red!(:as_receiver => true)
           function    = (METHOD_ESCAPE[function_sexp] || function_sexp).red!
           args_array  = arguments_array_sexp.last.is_sexp?(:array) ? arguments_array_sexp.last[1..-1].map {|argument_sexp| argument_sexp.red!(:as_argument => true)} : []
           args_array += [options[:block_string]] if options[:block_string]

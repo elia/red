@@ -11,6 +11,10 @@ require 'ftools'
 
 include Red
 
+@@lib_dirs = []
+@@output_file = nil
+@@output_file_x = 'bla'
+
 parser = OptionParser.new do |opts|
   opts.banner = RED_MESSAGES[:banner]
   opts.separator ""
@@ -20,6 +24,8 @@ parser = OptionParser.new do |opts|
   opts.on('-s',"--string=RUBY_STRING","Translate a single string to JavaScript.")     { |string| Red.init && direct_translate(string) }
   opts.on('-t',"--test","Translate a file to JavaScript without writing a .js file.") { ARGV.push(:test) }
   opts.on('-v',"--version","Print version number.")                                   { puts Red::VERSION::STRING; exit }
+  opts.on('-I',"--include=RUBY_STRING","Includes directory for requireing")           { |string| @@lib_dirs.push(string); puts "libs: #{@@lib_dirs}" }
+  opts.on('-o',"--output=RUBY_STRING","Sets output file")                             { |string| Red.set_output_file(string) }
   begin
     opts.parse!(ARGV)
   rescue OptionParser::InvalidOption => e
