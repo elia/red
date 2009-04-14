@@ -1,6 +1,6 @@
 = Red converts Ruby to Javascript
 
-This is my personal customization of the most awesome project on the web right now.
+This is my personal customization of the most awesome project on the web right now. http://github.com/jessesielaff/red
 
 == How I screwed it up
 
@@ -57,8 +57,7 @@ The method login will be ignored by my Red customization.
 === Redshift != Red
 
 I excluded Redshift from my Red version. I believe Red has a big future for Frontend developement and it should be open
-for any kind of Framework. (TODO: add ref to red_query)
-
+for any kind of Framework. I personally started one based on jQuery: http://github.com/julius/red_query
 
 == How to use
 
@@ -68,7 +67,7 @@ Usage is not so good right now. I use it like this:
 
 == The original Red
 
-You can learn more about the great original, gem installable Red on github.com/jessesielaff/red/wikis
+You can learn more about the great original, gem installable Red on http://github.com/jessesielaff/red/wikis
 
 === Bugs / Issues
 
