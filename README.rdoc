@@ -1,24 +1,78 @@
-= Write Ruby. Run JavaScript. The new Red is here.
+= Red converts Ruby to Javascript
 
-Red takes the Ruby you write and turns it into JavaScript for your browser.
+This is my personal customization of the most awesome project on the web right now.
 
-The all-new Red is a Ruby-to-JavaScript transliterator backed by a custom ruby.js library designed to let your code run in the browser exactly the way Ruby would run on your machine. The JavaScript output is optimized to contain only the fraction of the ruby.js source library needed to run your code.
+== How I screwed it up
 
-What does this mean for today’s Ruby developer? Simple. You don't need to learn JavaScript.
+Some of my improvements are necessary and should go into the original red sooner or later. Some of my changes might
+only be useful to me personally.
 
-=== Installation
+=== Include folders
 
-To get Red working, install the rubygem.
+Requiring files in Red really sucks.
+  red -Ipath/to/your_lib foo.red
 
-  sudo gem install red
+=== Set output file
 
-=== Tutorials
+You should be able to specify the output file.
+  red -o /some/where/your_file.js /your/red_files/your_code
 
-Find more info at Github on how to use Red: http://github.com/jessesielaff/red/wikis
+=== Super private Code
+
+Its nice to reuse code in the frontend and in the backend. E.g.
+  class User
+    def valid_email?(email)
+      ...
+    end
+  end
+
+You can also save classes by mixing in some backend only code.
+  class User
+    def valid_email?(email)
+      ...
+    end
+
+    def login(email, password)
+      top_secret_stuff(email)
+      screwed_up_backend_code(email, password)
+    end
+  end
+
+You might not want to let Red reveal the login method to hackers. Lets invent some Syntax.
+  class User
+    def valid_email?(email)
+      ...
+    end
+
+    def login(email, password)
+      _priv
+      top_secret_stuff(email)
+      screwed_up_backend_code(email, password)
+    end
+  end
+
+The method login will be ignored by my Red customization.
+
+
+=== Redshift != Red
+
+I excluded Redshift from my Red version. I believe Red has a big future for Frontend developement and it should be open
+for any kind of Framework. (TODO: add ref to red_query)
+
+
+== How to use
+
+=== The crappy truth
+Usage is not so good right now. I use it like this:
+  ruby -Ired/lib/ red/bin/red -I/my/library -o static/js/#{red_name}.js lib/frontend/reds/#{red_name}
+
+== The original Red
+
+You can learn more about the great original, gem installable Red on github.com/jessesielaff/red/wikis
 
 === Bugs / Issues
 
-Got a problem?  Tell us about it.  Submit a ticket to the project page at Lighthouse: http://jessesielaff.lighthouseapp.com/projects/15182-red
+Got a problem?  Tell Jesse Sielaff about it^^.  Submit a ticket to the project page at Lighthouse: http://jessesielaff.lighthouseapp.com/projects/15182-red
 
 === MIT License
 
