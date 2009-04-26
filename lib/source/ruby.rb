@@ -68,7 +68,11 @@
   
   interpretNamespace: function(longName) {
     var ary=longName.split('.'),name=ary.pop(),namespace=window;
-    while(ary.length>0){namespace=namespace['c$'+ary.shift()];};
+    while(ary.length>0){
+      var key='c$'+ary.shift();
+      if (typeof namespace[key] == 'undefined') throw 'Bad Namespace: '+longName;
+      namespace=namespace[key];
+    };
     return [namespace,name];
   },
   
