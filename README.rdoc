@@ -44,14 +44,15 @@ You might not want to let Red reveal the login method to hackers. Lets invent so
       ...
     end
 
+	server_side
+	
     def login(email, password)
-      _priv
       top_secret_stuff(email)
       screwed_up_backend_code(email, password)
     end
   end
 
-The method login will be ignored by my Red customization.
+The method login and everything after server_side will be ignored by my Red customization.
 
 
 === Redshift != Red
