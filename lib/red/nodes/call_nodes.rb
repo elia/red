@@ -88,27 +88,28 @@ module Red
             dirname  = File.dirname((arguments_array_sexp.assoc(:array).assoc(:str).last rescue ''))
             filename  = File.join(@@red_filepath, dirname, basename)
             filenameX = File.join(@@red_start_path, dirname, basename)
-            unless @@red_required.include?(basename)
-              @@red_required |= [basename]
-              file = Dir.glob('%s.red' % filename)[0] ||
-                     Dir.glob('%s.rb' % filename)[0] ||
-                     Dir.glob('%s.red' % filenameX)[0] ||
-                     Dir.glob('%s.rb' % filenameX)[0] ||
-                     Dir.glob(filename)[0] ||
-                     Dir.glob('%s/../../source/%s.red' % [File.dirname(__FILE__),basename])[0] ||
-                     Dir.glob('%s/../../source/%s.rb' % [File.dirname(__FILE__),basename])[0] ||
-                     Dir.glob('%s/../../source/%s' % [File.dirname(__FILE__),basename])[0]
-              if (file.nil?)
-                @@lib_dirs.each { |dir|
-                  filename = File.join(dir, dirname, basename)
-                  if (file.nil?)
-                    file = Dir.glob('%s.red' % filename)[0] ||
-                           Dir.glob('%s.rb' % filename)[0]
-                  end
-                }
-              end
-              
-              raise "cant find #{basename}" unless !file.nil?
+            file = Dir.glob('%s.red' % filename)[0] ||
+                   Dir.glob('%s.rb' % filename)[0] ||
+                   Dir.glob('%s.red' % filenameX)[0] ||
+                   Dir.glob('%s.rb' % filenameX)[0] ||
+                   Dir.glob(filename)[0] ||
+                   Dir.glob('%s/../../source/%s.red' % [File.dirname(__FILE__),basename])[0] ||
+                   Dir.glob('%s/../../source/%s.rb' % [File.dirname(__FILE__),basename])[0] ||
+                   Dir.glob('%s/../../source/%s' % [File.dirname(__FILE__),basename])[0]
+            if (file.nil?)
+              @@lib_dirs.each { |dir|
+                filename = File.join(dir, dirname, basename)
+                if (file.nil?)
+                  file = Dir.glob('%s.red' % filename)[0] ||
+                         Dir.glob('%s.rb' % filename)[0]
+                end
+              }
+            end
+            
+            raise "cant find #{basename}" unless !file.nil?
+
+            unless @@red_required.include?(file)
+              @@red_required |= [file]
               puts "FILE_START: " + file
               
               stored_filepath = @@red_filepath
