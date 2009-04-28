@@ -60,8 +60,8 @@ module Red # :nodoc:
   end
   
   def convert_red_file_to_js(filename, dry_run = false)
-    unless File.exists?(file = "%s.red" % [filename]) || File.exists?(file = "%sred/%s.red" % [(dir = "public/javascripts/"), filename])
-      puts "File #{filename}.red does not exist."
+    unless File.exists?(file = "%s.rb" % [filename]) || File.exists?(file = "%s" % [filename])
+      puts "File #{file} does not exist."
       exit
     end
     @@red_filepath = File.dirname(File.expand_path(filename))
@@ -71,7 +71,7 @@ module Red # :nodoc:
     pre  = Red.debug ? "try{" : ""
     post = Red.debug ? "}catch(e){if(e.__class__){m$raise(e);};$ee=e;var m=e.message.match(/([^\\$]+)\\.m\\$(\\w+)\\sis\\snot\\sa\\sfunction/);if(m){m$raise(c$NoMethodError,$q('undefined method \"'+m[2]+'\" for '+m[1]));};var c=e.message.match(/([\\s\\S]+)\\sis\\sundefined/);if(c){c=c[1].replace(/\\./g,'::').replace(/c\\$/g,'');m$raise(c$NameError,$q('uninitialized constant '+c));};}" : ""
     
-    output_filename = "%s%s.js" % [dir, filename]
+    # output_filename = "%s%s.js" % [dir, filename]
     output_filename = @@output_filename
     puts "OUTPUT: #{output_filename}"
     File.open(output_filename, 'w') {|f| f.write(pre + ruby_js + js_output + post)} unless dry_run

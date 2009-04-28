@@ -24,7 +24,7 @@ parser = OptionParser.new do |opts|
   opts.on('-s',"--string=RUBY_STRING","Translate a single string to JavaScript.")     { |string| Red.init && direct_translate(string) }
   opts.on('-t',"--test","Translate a file to JavaScript without writing a .js file.") { ARGV.push(:test) }
   opts.on('-v',"--version","Print version number.")                                   { puts Red::VERSION::STRING; exit }
-  opts.on('-I',"--include=RUBY_STRING","Includes directory for requireing")           { |string| @@lib_dirs.push(string); puts "libs: #{@@lib_dirs}" }
+  opts.on('-I',"--include=RUBY_STRING","Includes directory for requireing")           { |string| @@lib_dirs.push(string) }
   opts.on('-o',"--output=RUBY_STRING","Sets output file")                             { |string| Red.set_output_file(string) }
   begin
     opts.parse!(ARGV)
