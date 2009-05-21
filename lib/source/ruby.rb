@@ -1395,6 +1395,7 @@ module Kernel
   # 
   # FIX: Incomplete
   def puts(obj)
+    return nil if `typeof console == "undefined"`
     `var string=obj.m$to_s&&obj.m$to_s()||$q(''+obj)`
     `console.log(string.__value__.replace(/\\\\/g,'\\\\\\\\'))`
     return nil
