@@ -4223,7 +4223,8 @@ class Numeric
   # also <tt>Numeric#quo</tt>.)
   # 
   def /(n)
-    `parseInt(this/n)`
+    # `parseInt(this/n)`
+    `this/n`
   end
   
   # call-seq:
