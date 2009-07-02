@@ -31,6 +31,8 @@ module Red
         end
         @@red_constants |= [namespaced_class]
         
+        @@class_superclass = superclass
+        
         scope = scope_sexp.red!(:as_class_eval => true)
         
         self << "\n\nRed._class('%s',%s,function(){ var _=%s.prototype;\n  %s;\n})" % [namespaced_class.gsub("c$",""), superclass, namespaced_class, scope]

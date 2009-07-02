@@ -227,6 +227,8 @@ module Red # :nodoc:
     @@red_import      = false
     @@red_boolean     = '`'
     @@red_required    = []
+    
+    @@class_superclass = nil
     return true
   end
   

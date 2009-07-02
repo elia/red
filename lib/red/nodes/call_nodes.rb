@@ -146,7 +146,8 @@ module Red
         args_array  = ["this"] + args_array
         args_array += [options[:block_string]] if options[:block_string]
         arguments   = args_array.join(",")
-        self << "this.m$class().m$superclass().prototype.m$%s.call(%s)" % [@@red_function, arguments]
+        # self << "this.m$class().m$superclass().prototype.m$%s.call(%s)" % [@@red_function, arguments]
+        self << "%s.prototype.m$%s.call(%s)" % [@@class_superclass, @@red_function, arguments]
       end
       
       class Delegate < Super # :nodoc:
