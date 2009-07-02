@@ -155,7 +155,8 @@ module Red
         # FIX: Super::Delegate ignores block_string option when called inside an :iter e.g. super { foo }; this is an easy enough fix but annoying in that it needs fixing
         def initialize(*arguments_array_sexp)
           options = arguments_array_sexp.pop
-          self << "this.m$class().m$superclass().prototype.m$%s.apply(this,arguments)" % [@@red_function]
+          # self << "this.m$class().m$superclass().prototype.m$%s.apply(this,arguments)" % [@@red_function]
+          self << "%s.prototype.m$%s.apply(this,arguments)" % [@@class_superclass, @@red_function]
         end
       end
     end
