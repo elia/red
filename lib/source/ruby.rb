@@ -97,6 +97,7 @@
   },
   
   _class: function(longName,superclass,block){
+    if (typeof(superclass) == "string") { throw "Superclass of " + longName + " < " + superclass + " undefined"; }
     var newClass,context=Red.interpretNamespace(longName),namespace=context[0],name=context[1],c$name='c$'+name;
     if(namespace[c$name]) {
       if(namespace[c$name].m$class&&namespace[c$name].m$class()!==c$Class){m$raise(c$TypeError,$q(longName+' is not a Class'));};
