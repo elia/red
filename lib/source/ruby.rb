@@ -146,7 +146,7 @@ function $e(e,ary){if(e.m$is_a_bool){for(var i=0,l=ary.length;i<l;++i){if(e.m$is
 function $m(obj,name){var str=obj.m$inspect().__value__;str=str[0]=='#'?str:str+':'+obj.m$class().__name__;m$raise(c$NoMethodError, $q('undefined method "'+name+'" for '+str));}
 function $n(obj,name){var str=obj.m$inspect().__value__;str=str[0]=='#'?str:str+':'+obj.m$class().__name__;m$raise(c$NameError, $q('undefined local variable or method "'+name+'" for '+str));}
 function $Q(){for(var i=1,s=arguments[0],l=arguments.length;i<l;++i){s+=$q(arguments[i]).m$to_s().__value__;};return $q(s);};
-function $q(obj){if(typeof obj!=='string'){return obj;};return c$String.m$new(obj);};
+function $q(obj){if(typeof obj!=='string'){return obj;};var result=c$String.m$new(obj);if(typeof result==='undeifned') throw "unknown: "+obj;return result;};
 function $r(value,options){return c$Regexp.m$new(value,options);};
 function $s(value){return(c$Symbol.__table__[value]||c$Symbol.m$new(value));};
 function $T(x){return x!==false&&x!==nil&&x!=undefined;};
@@ -5677,7 +5677,8 @@ class String
   end
   
   # FIX: Incomplete
-  def index
+  def index(obj)
+    `this.__value__.indexOf(obj.__value__)`
   end
   
   # FIX: Incomplete
