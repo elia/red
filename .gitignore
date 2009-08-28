@@ -5,3 +5,4 @@ pkg/*
 lib/source/redshift/*
 lib/source/redspec/*
 .DS_Store
+nbproject
