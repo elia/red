@@ -43,7 +43,7 @@ module Red
       # [:ivar, :@foo]
       def initialize(variable_name_sexp, options)
         variable_name = variable_name_sexp.red!
-        self << "this.i$%s" % [variable_name]
+        self << "this.i$%s" % [variable_name.gsub(/@/,'')]
       end
     end
     
