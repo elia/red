@@ -123,10 +123,9 @@
   LoopError: {
     _break:function(returnValue){var e=new(Error);e.__keyword__='break';e.__return__=returnValue==null?nil:returnValue;throw(e);},
     _next:function(returnValue){var e=new(Error);e.__keyword__='next';e.__return__=returnValue==null?nil:returnValue;throw(e);},
-    _redo:function(){var e=new(Error);e.__keyword__='redo';throw(e);},
+    _redo:function(){var e=new(Error);e.__keyword__='redo';throw(e);}
   }
-}
-;
+};
 
 var $u=undefined,nil=null,$={};
 
@@ -147,9 +146,10 @@ function $e(e,ary){if(e.m$is_a_bool){for(var i=0,l=ary.length;i<l;++i){if(e.m$is
 function $m(obj,name){var str=obj.m$inspect().__value__;str=str[0]=='#'?str:str+':'+obj.m$class().__name__;m$raise(c$NoMethodError, $q('undefined method "'+name+'" for '+str));}
 function $n(obj,name){var str=obj.m$inspect().__value__;str=str[0]=='#'?str:str+':'+obj.m$class().__name__;m$raise(c$NameError, $q('undefined local variable or method "'+name+'" for '+str));}
 function $Q(){for(var i=1,s=arguments[0],l=arguments.length;i<l;++i){s+=$q(arguments[i]).m$to_s().__value__;};return $q(s);};
-function $q(obj){if(typeof obj!=='string'){return obj;};return c$String.m$new(obj);};
+function $q(obj){if(typeof obj!=='string'){return obj;};var result=c$String.m$new(obj);return result;};
 function $r(value,options){return c$Regexp.m$new(value,options);};
 function $s(value){return(c$Symbol.__table__[value]||c$Symbol.m$new(value));};
+function $S(value){for(var i=1,s=arguments[0],l=arguments.length;i<l;++i){s+=arguments[i]};return(c$Symbol.__table__[s]||c$Symbol.m$new(s));};
 function $T(x){return x!==false&&x!==nil&&x!=undefined;};
 
 `
@@ -449,7 +449,7 @@ class Object
   #   k.instance_variable_defined?("@b")   #=> false
   # 
   def instance_variable_defined?(name)
-    `this[name.__value__.replace('@','i$')]!=null`
+    `this[name.__value__.replace('@','i$').replace(':','')]!=null`
   end
   
   # call-seq:
@@ -469,7 +469,8 @@ class Object
   #   k.instance_variable_get(:@a)    #=> 99
   # 
   def instance_variable_get(name)
-    `var v=this[name.__value__.replace('@','i$')]`
+    `var rname=name.__value__.replace('@','i$').replace(':','')`
+    `var v=this[rname]`
     `v==null?nil:v`
   end
   
@@ -491,7 +492,7 @@ class Object
   # 
   # FIX: Incomplete
   def instance_variable_set(name, obj)
-    `this[name.__value__.replace('@','i$')]=obj`
+    `this[name.__value__.replace('@','i$').replace(':','')]=obj`
   end
   
   # call-seq:
@@ -705,7 +706,7 @@ class Object
   #   k.send(:hello, "gentle", "readers")  #=> "Hello gentle readers"
   # 
   def send(sym,*args)
-    `var str=sym.__value__.replace('=','_eql').replace('!','_bang').replace('?','_bool');sub={'==':'_eql2','===':'_eql3','=~':'_etld','[]':'_brac','[]=':'_breq','<=':'_lteq','>=':'_gteq','<<':'_ltlt','>>':'_gtgt','<':'_lthn','>':'_gthn','<=>':'_ltgt','|':'_pipe','&':'_ampe','+':'_plus','+@':'_posi','-@':'_nega','*':'_star','**':'_str2','/':'_slsh','%':'_perc','^':'_care','~':'_tild'}`
+    `var str=sym.__value__.replace(':','').replace('=','_eql').replace('!','_bang').replace('?','_bool');sub={'==':'_eql2','===':'_eql3','=~':'_etld','[]':'_brac','[]=':'_breq','<=':'_lteq','>=':'_gteq','<<':'_ltlt','>>':'_gtgt','<':'_lthn','>':'_gthn','<=>':'_ltgt','|':'_pipe','&':'_ampe','+':'_plus','+@':'_posi','-@':'_nega','*':'_star','**':'_str2','/':'_slsh','%':'_perc','^':'_care','~':'_tild'}`
     `var method=this['m$'+(sub[str]||str)]`
     `if(!method){m$raise(c$NoMethodError,$q('undefined method "'+sym.__value__+'" for '+this));}`
     `method.apply(this,args)`
@@ -898,7 +899,8 @@ class Module
   end
   
   def define_method(sym, &block)
-    `this.prototype['m$'+sym.__value__]=block.__block__.__unbound__`
+    `var str=sym.__value__.replace(':','').replace('=','_eql').replace('!','_bang').replace('?','_bool');sub={'==':'_eql2','===':'_eql3','=~':'_etld','[]':'_brac','[]=':'_breq','<=':'_lteq','>=':'_gteq','<<':'_ltlt','>>':'_gtgt','<':'_lthn','>':'_gthn','<=>':'_ltgt','|':'_pipe','&':'_ampe','+':'_plus','+@':'_posi','-@':'_nega','*':'_star','**':'_str2','/':'_slsh','%':'_perc','^':'_care','~':'_tild'}`
+    `this.prototype['m$'+(sub[str]||str)]=block.__block__.__unbound__`
     `Red.updateChildren(this)`
     `Red.updateIncluders(this)`
     return `block`
@@ -5440,12 +5442,17 @@ class String
     if (num.nil?)
       exp = regexp.inspect
       re = `new RegExp(#{exp}.__value__.substr(1, #{exp}.__value__.length-2))`
-      `console.log(#{re}.exec(this.__value__))`
+      # `console.log(#{re}.exec(this.__value__))`
       result = `#{re}.exec(this.__value__)`
       if `!result`
         return nil
       end
       return String.new(`result[0]`)
+    else
+      idx = regexp
+      len = num
+      
+      return String.new(`this.__value__.substr(#{idx}, #{len})`)
     end
   end
   
@@ -5678,7 +5685,8 @@ class String
   end
   
   # FIX: Incomplete
-  def index
+  def index(obj)
+    `this.__value__.indexOf(obj.__value__)`
   end
   
   # FIX: Incomplete
@@ -5869,7 +5877,8 @@ class String
   end
   
   # FIX: Incomplete
-  def rindex
+  def rindex(obj)
+    `this.__value__.lastIndexOf(obj.__value__)`
   end
   
   # FIX: Incomplete

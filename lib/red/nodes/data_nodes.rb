@@ -60,7 +60,8 @@ module Red
       end
       
       def camelize(string, disabled = false)
-        return string.gsub(/@/,'').gsub('?','_bool').gsub('!','_bang').gsub('=','_eql')
+        # return string.gsub(/@/,'').gsub('?','_bool').gsub('!','_bang').gsub('=','_eql')
+        return string.gsub('?','_bool').gsub('!','_bang').gsub('=','_eql')
       # return string unless self.camelize?(string) && !disabled
       # words = string.gsub(/@/,'').gsub('?','_bool').gsub('!','_bang').gsub('=','_eql').split(/_/)
       # underscore = words.shift if words.first.empty?

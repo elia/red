@@ -35,7 +35,7 @@ module Red
       def initialize(variable_name_sexp, expression_sexp, options)
         variable_name = variable_name_sexp.red!
         expression    = expression_sexp.red!(:as_assignment => true)
-        self << "this.i$%s=%s" % [variable_name, expression]
+        self << "this.i$%s=%s" % [variable_name.gsub(/@/,''), expression]
       end
     end
     

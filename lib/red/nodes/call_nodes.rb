@@ -130,7 +130,13 @@ module Red
               self << "((this.m$%s&&this.m$%s(%s))||(window.m$%s&&window.m$%s(%s))||$%s(this,'%s'))" % [function,function,arguments,function,function,arguments,error_function,function_sexp]
             else
               arguments = ','+arguments unless arguments.empty?
-              self << "(this.m$%s||window.m$%s).call(this%s)" % [function, function, arguments]
+              
+              s = arguments_array_sexp.last 
+              if s && s.is_sexp?(:splat) && s.last.is_sexp?(:lvar)
+                self << "(this.m$%s||window.m$%s).apply(this,%s)" % [function, function, s.last[1]]
+              else
+                self << "(this.m$%s||window.m$%s).call(this%s)" % [function, function, arguments]
+              end
             end
             @@red_methods |= [function_sexp] unless @@red_import
           end
