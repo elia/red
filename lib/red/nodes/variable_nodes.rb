@@ -55,7 +55,8 @@ module Red
         when Nil
           "nil"
         when Self
-          @@red_singleton || "this"
+          # @@red_singleton || "this"
+          "this"
         end
         self << string
       end

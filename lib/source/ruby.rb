@@ -12,7 +12,8 @@
   donateMethodsToSingleton: function(donor,recipient,overwrite) {
     for(var x in donor) {
       if(x.slice(0,2)==='m$' && (overwrite || recipient[x]===undefined)) {
-        var f = function() { var m=arguments.callee;return m.__methodSource__[m.__methodName__].apply(m.__methodReceiver__,arguments); };
+        //var f = function() { var m=arguments.callee;return m.__methodSource__[m.__methodName__].apply(m.__methodReceiver__,arguments); };
+        var f = function() { var m=arguments.callee;return m.__methodSource__[m.__methodName__].apply(this,arguments); };
         f.__methodName__=x;f.__methodSource__=donor;f.__methodReceiver__=recipient;
         recipient[x]=f;
       };
@@ -64,6 +65,8 @@
     newClass.__class__ = c$Class;
     newClass.prototype.__class__=newClass;
     Red.donateMethodsToSingleton(c$Class.prototype,newClass,true);
+    
+    if (c$Module && c$Module.m$const_set) { c$Module.m$const_set(longName, newClass); }
   },
   
   interpretNamespace: function(longName) {
@@ -132,6 +135,10 @@ c$Class  = function(){this.__id__=Red.id++};c$Class.__name__='Class';c$Class.__c
 c$Module = function(){this.__id__=Red.id++};c$Module.__name__='Module';c$Module.__children__={};c$Class.__superclass__=c$Module;
 c$Object = function(){this.__id__=Red.id++};c$Object.__name__='Object';c$Object.__children__={};c$Module.__superclass__=c$Object;
 
+c$Module.__constants___={}
+c$Module.m$const_set = function(name,val){ c$Module.__constants___[name]=val; };
+c$Module.m$const_get = function(name){ return c$Module.__constants___[name]; };
+
 c$Object.prototype.toString=function(){return '#<'+this.m$class().__name__.replace(/\\./g,'::')+':0x'+(this.__id__*999^4000000).toString(16)+'>'};
 Function.prototype.m$=function(o){var f=this;var p=function(){return f.apply(o,arguments);};p.__unbound__=f;p.__arity__=f.arity;p.__id__=Red.id++;return p;};
 window.__name__='window';
@@ -141,7 +148,7 @@ window.m$include=function(){for(var i=0,modules=arguments,l=modules.length;i<l;+
 window.m$block_given_bool=function(){typeof(arguments[0])=='function'}
 
 function $a(min,max,args,bg){var a=args.length-bg;if(a<min){n=min;}else{if(max!=-1&&a>max){n=max;}else{return;};};m$raise(c$ArgumentError, $q('wrong number of arguments ('+a+' for '+n+')'));}
-function $e(e,ary){if(e.m$is_a_bool){for(var i=0,l=ary.length;i<l;++i){if(e.m$is_a_bool(ary[i])){return true;};};};return false;};
+function $e(e,ary){return true; if(e.m$is_a_bool){for(var i=0,l=ary.length;i<l;++i){if(e.m$is_a_bool(ary[i])){return true;};};};return false;};
 function $m(obj,name){var str=obj.m$inspect().__value__;str=str[0]=='#'?str:str+':'+obj.m$class().__name__;m$raise(c$NoMethodError, $q('undefined method "'+name+'" for '+str));}
 function $n(obj,name){var str=obj.m$inspect().__value__;str=str[0]=='#'?str:str+':'+obj.m$class().__name__;m$raise(c$NameError, $q('undefined local variable or method "'+name+'" for '+str));}
 function $Q(){for(var i=1,s=arguments[0],l=arguments.length;i<l;++i){s+=$q(arguments[i]).m$to_s().__value__;};return $q(s);};
@@ -793,7 +800,10 @@ class Module
   # 
   def initialize(module_name, &block)
     `this.__name__=module_name.__value__||module_name`
+    `this.__constants___ = {}`
     `this.prototype={}`
+    
+    `if (c$Module && c$Module.m$const_set) { c$Module.m$const_set(#{module_name}, this) }`
   end
   
   def <(other_module)
@@ -889,12 +899,19 @@ class Module
   end
   
   def const_get(sym)
+    `console.log("getting: "+sym)`
+    `this.__constants___[#{sym}]`
   end
   
   def const_set(sym, object)
+    `this.__constants___ = this.__constants___ || {}`
+    `this.__constants___[#{sym}] = #{object}`
   end
-  
+
   def constants
+    result = []
+    `for(var key in this.__constants___){result.m$push(key)}`
+    result
   end
   
   def define_method(sym, &block)
@@ -1098,6 +1115,8 @@ class Class < Module
   # FIX: Incomplete
   def self.new(class_name, superclass = Object)
     `Red._class(class_name.__value__,superclass,function(){})`
+    puts "INIT CLASS: #{class_name}"
+    Module.const_set(class_name, self) unless `#{class_name} == "Class"`
     return `window['c$'+class_name.__value__]`
   end
   
@@ -1182,132 +1201,6 @@ Red.initializeClass('Object',c$Object);c$Object.__children__={'Module':true};
 Red.initializeClass('Module',c$Module);c$Module.__children__={'Class':true};
 Red.initializeClass('Class',c$Class)
 `
-
-# The +Comparable+ mixin is used by classes whose objects may be ordered. The
-# class must define the <tt><=></tt> operator, which compares the receiver
-# against another object, returning -1, 0, or +1 depending on whether the
-# receiver is less than, equal to, or greater than the other object.
-# +Comparable+ uses <tt><=></tt> to implement the conventional comparison
-# operators (<tt><</tt>, <tt><=</tt>, <tt>==</tt>, <tt>>=</tt>, and
-# <tt>></tt>) and the method <tt>between?</tt>.
-# 
-#   class SizeMatters
-#     include Comparable
-#     attr :str
-#     
-#     def <=>(other)
-#       str.size <=> other.str.size
-#     end
-#     
-#     def initialize(str)
-#       @str = str
-#     end
-#     
-#     def inspect
-#       @str
-#     end
-#   end
-#   
-#   s1 = SizeMatters.new("Z")
-#   s2 = SizeMatters.new("YY")
-#   s3 = SizeMatters.new("XXX")
-#   s4 = SizeMatters.new("WWWW")
-#   
-#   s1 < s2                 #=> true
-#   s4.between?(s1, s3)     #=> false
-#   s3.between?(s2, s4)     #=> true
-#   [s3, s2, s4, s1].sort   #=> [Z, YY, XXX, WWWW]
-# 
-module Comparable
-  # call-seq:
-  #   obj < other -> true or false
-  # 
-  # Compares two objects based on the receiver's <tt><=></tt> method,
-  # returning +true+ if the comparison returns -1.
-  # 
-  def <(obj)
-    `this.m$_ltgt(obj)==-1`
-  end
-  
-  # call-seq:
-  #   obj <= other -> true or false
-  # 
-  # Compares two objects based on the receiver's <tt><=></tt> method,
-  # returning +true+ if the comparison returns -1 or 0.
-  # 
-  def <=(obj)
-    `var result=this.m$_ltgt(obj)`
-    `result==0||result==-1`
-  end
-  
-  # call-seq:
-  #   obj == other -> true or false
-  # 
-  # Compares two objects based on the receiver's <tt><=></tt> method,
-  # returning +true+ if the comparison returns 0. Also returns +true+ if _obj_
-  # and _other_ are the same object.
-  # 
-  def ==(obj)
-    `(this.__id__&&obj.__id__&&this.__id__==obj.__id__)||this.m$_ltgt(obj)==0`
-  end
-  
-  # call-seq:
-  #   obj > other -> true or false
-  # 
-  # Compares two objects based on the receiver's <tt><=></tt> method,
-  # returning +true+ if the comparison returns 1.
-  # 
-  def >(obj)
-    `this.m$_ltgt(obj)==1`
-  end
-  
-  # call-seq:
-  #   obj >= other -> true or false
-  # 
-  # Compares two objects based on the receiver's <tt><=></tt> method,
-  # returning +true+ if it returns 1 or 0.
-  def >=(obj)
-    `var result=this.m$_ltgt(obj)`
-    `result==0||result==1`
-  end
-  
-  # call-seq:
-  #   obj.between?(min,max) -> true or false
-  # 
-  # Returns +false+ if <tt>obj <=> min</tt> is less than zero or if
-  # <tt>obj <=> max</tt> is greater than zero, +true+ otherwise.
-  # 
-  #   3.between?(1, 5)               #=> true
-  #   6.between?(1, 5)               #=> false
-  #   'cat'.between?('ant', 'dog')   #=> true
-  #   'gnu'.between?('ant', 'dog')   #=> false
-  # 
-  def between?(min, max)
-    `if(this.m$_ltgt(min)==-1){return false;}`
-    `if(this.m$_ltgt(max)==1){return false;}`
-    return true
-  end
-end
-
-# Enumerable
-# 
-module Enumerable
-  # call-seq:
-  #   enum.all? [{ |obj| block }] -> true or false
-  # 
-  # Passes each element of the collection to the given block. The method
-  # returns +true+ if the block never returns +false+ or +nil+. If the block
-  # is not given, Red adds an implicit block of <tt>{|obj| obj }</tt> (that
-  # is, <tt>all?</tt> will return +true+ only if none of the collection
-  # members are +false+ or +nil+.)
-  # 
-  #    %w(ant bear cat).all? {|word| word.length >= 3}    #=> true
-  #    %w(ant bear cat).all? {|word| word.length >= 4}    #=> false
-  #    [nil, true, 99].all?                               #=> false
-  # 
-  def all?(block = `function(obj){return $T(obj);}`)
-  end
-end
 
 # The +Kernel+ module contains methods that are mixed in to the +window+
 # object and are available in any context.
@@ -1543,6 +1436,132 @@ module Kernel
 end
 
 include Kernel
+
+# The +Comparable+ mixin is used by classes whose objects may be ordered. The
+# class must define the <tt><=></tt> operator, which compares the receiver
+# against another object, returning -1, 0, or +1 depending on whether the
+# receiver is less than, equal to, or greater than the other object.
+# +Comparable+ uses <tt><=></tt> to implement the conventional comparison
+# operators (<tt><</tt>, <tt><=</tt>, <tt>==</tt>, <tt>>=</tt>, and
+# <tt>></tt>) and the method <tt>between?</tt>.
+# 
+#   class SizeMatters
+#     include Comparable
+#     attr :str
+#     
+#     def <=>(other)
+#       str.size <=> other.str.size
+#     end
+#     
+#     def initialize(str)
+#       @str = str
+#     end
+#     
+#     def inspect
+#       @str
+#     end
+#   end
+#   
+#   s1 = SizeMatters.new("Z")
+#   s2 = SizeMatters.new("YY")
+#   s3 = SizeMatters.new("XXX")
+#   s4 = SizeMatters.new("WWWW")
+#   
+#   s1 < s2                 #=> true
+#   s4.between?(s1, s3)     #=> false
+#   s3.between?(s2, s4)     #=> true
+#   [s3, s2, s4, s1].sort   #=> [Z, YY, XXX, WWWW]
+# 
+module Comparable
+  # call-seq:
+  #   obj < other -> true or false
+  # 
+  # Compares two objects based on the receiver's <tt><=></tt> method,
+  # returning +true+ if the comparison returns -1.
+  # 
+  def <(obj)
+    `this.m$_ltgt(obj)==-1`
+  end
+  
+  # call-seq:
+  #   obj <= other -> true or false
+  # 
+  # Compares two objects based on the receiver's <tt><=></tt> method,
+  # returning +true+ if the comparison returns -1 or 0.
+  # 
+  def <=(obj)
+    `var result=this.m$_ltgt(obj)`
+    `result==0||result==-1`
+  end
+  
+  # call-seq:
+  #   obj == other -> true or false
+  # 
+  # Compares two objects based on the receiver's <tt><=></tt> method,
+  # returning +true+ if the comparison returns 0. Also returns +true+ if _obj_
+  # and _other_ are the same object.
+  # 
+  def ==(obj)
+    `(this.__id__&&obj.__id__&&this.__id__==obj.__id__)||this.m$_ltgt(obj)==0`
+  end
+  
+  # call-seq:
+  #   obj > other -> true or false
+  # 
+  # Compares two objects based on the receiver's <tt><=></tt> method,
+  # returning +true+ if the comparison returns 1.
+  # 
+  def >(obj)
+    `this.m$_ltgt(obj)==1`
+  end
+  
+  # call-seq:
+  #   obj >= other -> true or false
+  # 
+  # Compares two objects based on the receiver's <tt><=></tt> method,
+  # returning +true+ if it returns 1 or 0.
+  def >=(obj)
+    `var result=this.m$_ltgt(obj)`
+    `result==0||result==1`
+  end
+  
+  # call-seq:
+  #   obj.between?(min,max) -> true or false
+  # 
+  # Returns +false+ if <tt>obj <=> min</tt> is less than zero or if
+  # <tt>obj <=> max</tt> is greater than zero, +true+ otherwise.
+  # 
+  #   3.between?(1, 5)               #=> true
+  #   6.between?(1, 5)               #=> false
+  #   'cat'.between?('ant', 'dog')   #=> true
+  #   'gnu'.between?('ant', 'dog')   #=> false
+  # 
+  def between?(min, max)
+    `if(this.m$_ltgt(min)==-1){return false;}`
+    `if(this.m$_ltgt(max)==1){return false;}`
+    return true
+  end
+end
+
+# Enumerable
+# 
+module Enumerable
+  # call-seq:
+  #   enum.all? [{ |obj| block }] -> true or false
+  # 
+  # Passes each element of the collection to the given block. The method
+  # returns +true+ if the block never returns +false+ or +nil+. If the block
+  # is not given, Red adds an implicit block of <tt>{|obj| obj }</tt> (that
+  # is, <tt>all?</tt> will return +true+ only if none of the collection
+  # members are +false+ or +nil+.)
+  # 
+  #    %w(ant bear cat).all? {|word| word.length >= 3}    #=> true
+  #    %w(ant bear cat).all? {|word| word.length >= 4}    #=> false
+  #    [nil, true, 99].all?                               #=> false
+  # 
+  def all?(block = `function(obj){return $T(obj);}`)
+  end
+end
 
 # The +Math+ module contains module functions for basic trigonometric and
 # transcendental functions.
