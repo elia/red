@@ -899,7 +899,7 @@ class Module
   end
   
   def const_get(sym)
-    `console.log("getting: "+sym)`
+    # `console.log("getting: "+sym)`
     `this.__constants___[#{sym}]`
   end
   
