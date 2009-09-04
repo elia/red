@@ -1153,8 +1153,8 @@ class Class < Module
   #   New subclass: Bar
   #   New subclass: Baz
   # 
-  def inherited(subclass)
-  end
+  # def inherited(subclass)
+  # end
   
   # call-seq:
   #   klass.new(args, ...) -> object
