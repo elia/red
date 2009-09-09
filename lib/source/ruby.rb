@@ -1299,6 +1299,7 @@ module Kernel
   
   # FIX: Incomplete
   def raise(*args)
+    # `throw(new Error(arguments[0].toString()).stack)`
     `var exception_class=c$RuntimeError,msg=$q('')`
     `if(arguments[0]&&arguments[0].m$is_a_bool(c$Exception)){
       var e=arguments[0];
