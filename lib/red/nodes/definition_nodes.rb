@@ -111,6 +111,7 @@ module Red
           arguments       = args_array.join(",")
           scope           = scope_sexp.red!(:force_return => function != 'initialize')
           contents        = [(splatten_args || splat_block || block_arg), args_checker, defaults, scope].compact.join(";")
+
           if options[:as_class_eval]
             string = "_.m$%s=function(%s){%s;}"
           else
