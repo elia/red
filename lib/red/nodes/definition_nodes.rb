@@ -112,12 +112,21 @@ module Red
           scope           = scope_sexp.red!(:force_return => function != 'initialize')
           contents        = [(splatten_args || splat_block || block_arg), args_checker, defaults, scope].compact.join(";")
 
-          if options[:as_class_eval]
-            string = "_.m$%s=function(%s){%s;}"
+          if Red.debug
+            if options[:as_class_eval]
+              string = "_.m$%s=function %s_%s(%s){%s;}"
+            else
+              string = "m$%s=function %s_%s(%s){%s;}"
+            end
+            self << string % [function, @@namespace_stack.last, function, arguments, contents]
           else
-            string = "m$%s=function(%s){%s;}"
+            if options[:as_class_eval]
+              string = "_.m$%s=function(%s){%s;}"
+            else
+              string = "m$%s=function(%s){%s;}"
+            end
+            self << string % [function, arguments, contents]
           end
-          self << string % [function, arguments, contents]
           @@red_block_arg = nil
           @@red_function  = nil
         end

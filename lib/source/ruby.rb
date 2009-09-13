@@ -147,7 +147,8 @@ window.__children__={'Object':true};
 window.m$include=function(){for(var i=0,modules=arguments,l=modules.length;i<l;++i){var mp=modules[i].prototype;for(var x in mp){if(x.slice(0,2)=='m$'){var f=function(){return arguments.callee._source[arguments.callee._name].apply(window,arguments) };f._source=mp;f._name=x;window[x]=f;};};modules[i].m$included(window);modules[i].__includers__['window']=true;};if(modules[0]!=c$Kernel){Red.donateMethodsToClass(window,c$Object.prototype);Red.updateChildren(c$Object);};return window;};
 window.m$block_given_bool=function(){typeof(arguments[0])=='function'}
 
-function $a(min,max,args,bg){var a=args.length-bg;if(a<min){n=min;}else{if(max!=-1&&a>max){n=max;}else{return;};};m$raise(c$ArgumentError, $q('wrong number of arguments ('+a+' for '+n+')'));}
+//function $a(min,max,args,bg){var a=args.length-bg;if(a<min){n=min;}else{if(max!=-1&&a>max){n=max;}else{return;};};m$raise(c$ArgumentError, $q('wrong number of arguments ('+a+' for '+n+')'));}
+function $a(min,max,args,bg){return;}
 function $e(e,ary){return true; if(e.m$is_a_bool){for(var i=0,l=ary.length;i<l;++i){if(e.m$is_a_bool(ary[i])){return true;};};};return false;};
 function $m(obj,name){var str=obj.m$inspect().__value__;str=str[0]=='#'?str:str+':'+obj.m$class().__name__;m$raise(c$NoMethodError, $q('undefined method "'+name+'" for '+str));}
 function $n(obj,name){var str=obj.m$inspect().__value__;str=str[0]=='#'?str:str+':'+obj.m$class().__name__;m$raise(c$NameError, $q('undefined local variable or method "'+name+'" for '+str));}
@@ -1298,22 +1299,24 @@ module Kernel
   
   # FIX: Incomplete
   def raise(*args)
-    # `throw(new Error(arguments[0].toString()).stack)`
-    `var exception_class=c$RuntimeError,msg=$q('')`
-    `if(arguments[0]&&arguments[0].m$is_a_bool(c$Exception)){
-      var e=arguments[0];
-    }else{
-      if(arguments[0]&&arguments[0].m$class()==c$String){
-        msg=arguments[0];
-      }else{
-        if(arguments[0]!=null){
-          exception_class=arguments[0],msg=arguments[1]||msg;
-        };
-      }
-    }`
-    `var e=e||exception_class.m$new(msg)`
-    `e.__stack__=new Error().stack`
-    `throw(e)`
+    `console.trace()`
+    msg = args.collect{|arg| "#{arg}"}.join(" | ")
+    `throw(msg.__value__)`
+    # `var exception_class=c$RuntimeError,msg=$q('')`
+    # `if(arguments[0]&&arguments[0].m$is_a_bool(c$Exception)){
+    #   var e=arguments[0];
+    # }else{
+    #   if(arguments[0]&&arguments[0].m$class()==c$String){
+    #     msg=arguments[0];
+    #   }else{
+    #     if(arguments[0]!=null){
+    #       exception_class=arguments[0],msg=arguments[1]||msg;
+    #     };
+    #   }
+    # }`
+    # `var e=e||exception_class.m$new(msg)`
+    # `e.__stack__=new Error().stack`
+    # `throw(e)`
     return nil
   end
   
@@ -5661,11 +5664,13 @@ class String
   end
   
   # FIX: Incomplete
-  def gsub
+  def gsub(find, repl)
+    String.new(`this.__value__.replace(new RegExp(#{find}.__value__, "g"), #{repl}.__value__)`)
   end
   
   # FIX: Incomplete
-  def gsub!
+  def gsub!(find, repl)
+    replace(gsub(find, repl))
   end
   
   def hash # :nodoc:
