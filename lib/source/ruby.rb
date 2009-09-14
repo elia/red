@@ -4741,6 +4741,8 @@ class Numeric
   end
 end
 
+Fixnum = Numeric
+
 # +Proc+ objects are blocks of code that have been bound to a set of local
 # variables. Once bound, the code may be called in different contexts and
 # still access those variables.
