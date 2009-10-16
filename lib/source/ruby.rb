@@ -5464,6 +5464,13 @@ class String
   # 
   # FIX: Incomplete
   def [](regexp, num = nil)
+    if regexp.kind_of?(Range)
+      first = regexp.first
+      last = regexp.last
+      
+      return String.new(`this.__value__.substring(#{first}, #{last}+1)`)
+    end
+    
     if (num.nil?)
       exp = regexp.inspect
       re = `new RegExp(#{exp}.__value__.substr(1, #{exp}.__value__.length-2))`
