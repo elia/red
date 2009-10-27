@@ -1960,7 +1960,7 @@ class Array
     `if(index.m$class()==c$Range){var start=index.__start__,end=index.__exclusive__?index.__end__-1:index.__end__;index=start<0?start+l:start;length=(end<0?end+l:end)-index+1;if(length<0){length=0};}else{if(index<0){index+=l;};if(length<0){throw('IndexError: negative length')}}`
     `if(index<0){throw('RangeError: out of range');}`
     `while(this.length<index){this.push(nil);}`
-    `if($T(length)){var l=this.length,final=(index+length>l)?l:index+length;this._replace(this.slice(0,index).concat(object===nil?[]:(object.m$class()==c$Array?object:[object])).concat(this.slice(final,l)))}else{this[index]=object}`
+    `if($T(length)){var l=this.length,fnl=(index+length>l)?l:index+length;this._replace(this.slice(0,index).concat(object===nil?[]:(object.m$class()==c$Array?object:[object])).concat(this.slice(fnl,l)))}else{this[index]=object}`
     return `object`
   end
   
@@ -2269,13 +2269,13 @@ class Array
   # 
   # FIX: Incomplete -> doesn't accept ranges or handle loop control keywords
   def fill(object, index = 0, length = nil)
-    `if(!(typeof(object)=='function'||typeof(index)=='function'||typeof(length)=='function')){if(index<0){index+=this.length;};for(var i=index,final=($T(length)?index+length:this.length);i<final;++i){this[i]=object;};return(this);}`
-    `var final=this.length,_block=$u`
+    `if(!(typeof(object)=='function'||typeof(index)=='function'||typeof(length)=='function')){if(index<0){index+=this.length;};for(var i=index,fnl=($T(length)?index+length:this.length);i<fnl;++i){this[i]=object;};return(this);}`
+    `var fnl=this.length,_block=$u`
     `if(typeof(object)=='function'){_block=object;}`
     `if(typeof(index)=='function'){_block=index;index=object;}`
-    `if(typeof(length)=='function'){_block=length;length=index;index=object;if(index<0){index+=this.length;if(index<0){throw('IndexError: out of range')}};final=index+length;}`
+    `if(typeof(length)=='function'){_block=length;length=index;index=object;if(index<0){index+=this.length;if(index<0){throw('IndexError: out of range')}};fnl=index+length;}`
     `if(index<0){index+=this.length;}`
-    `for(var i=index;i<final;++i){this[i]=_block(i);}`
+    `for(var i=index;i<fnl;++i){this[i]=_block(i);}`
     return self
   end
   
